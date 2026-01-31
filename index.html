@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AJ Makeovers & Hairstylist | Royal Edition</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Great+Vibes&family=Lato:wght@300;400;700&family=Prata&display=swap" rel="stylesheet">
+
+    <style>
+        /* --- CSS VARIABLES & RESET --- */
+        :root {
+            --primary-gold: #D4AF37;
+            --accent-pink: #E91E63;
+            --text-dark: #2C3E50;
+            --bg-cream: #FFF0F5;
+            --white: #FFFFFF;
+            --gray-light: #f5f5f5;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Lato', sans-serif;
+            background-color: var(--bg-cream);
+            color: var(--text-dark);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* --- TYPOGRAPHY --- */
+        .font-display { font-family: 'Cinzel', serif; }
+        .font-script { font-family: 'Great Vibes', cursive; }
+        
+        a { text-decoration: none; color: inherit; }
+        
+        /* --- UTILITIES --- */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .text-center { text-align: center; }
+        .flex { display: flex; }
+        .items-center { align-items: center; }
+        .justify-center { justify-content: center; }
+        .justify-between { justify-content: space-between; }
+        .flex-col { flex-direction: column; }
+        
+        /* --- IMAGE ZOOM CONTROLS --- */
+        
+        .placeholder-img {
+            background-color: #ccc;
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Keeps the grid neat */
+            object-position: center;
+            display: block;
+            min-height: 100%;
+            transition: transform 0.5s ease;
+            cursor: pointer; 
+        }
+
+        .portfolio-item:hover .placeholder-img {
+            transform: scale(1.05); 
+        }
+
+        .fit-whole-image {
+            object-fit: contain !important;
+        }
+
+        .zoom-in {
+            transform: scale(1.2); 
+        }
+
+        /* --- LIGHTBOX (POPUP) STYLES --- */
+        /* Updated for Full Image View without Zoom Animation */
+        .lightbox {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 9999;
+            display: none; 
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .lightbox.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .lightbox-img {
+            /* These settings ensure the FULL image shows without cutting */
+            max-width: 95vw;
+            max-height: 95vh;
+            width: auto;
+            height: auto;
+            object-fit: contain; 
+            border-radius: 2px;
+            box-shadow: 0 0 30px rgba(0,0,0,0.8);
+            /* Removed transform scale animation */
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            font-size: 3rem;
+            color: white;
+            cursor: pointer;
+            z-index: 10000;
+            transition: color 0.3s;
+            line-height: 1;
+        }
+
+        .lightbox-close:hover {
+            color: var(--primary-gold);
+        }
+        
+        /* --- ANIMATIONS --- */
+        @keyframes float {
+            0% { transform: translateY(0) scale(0.8); opacity: 0; }
+            20% { opacity: 0.4; }
+            100% { transform: translateY(-100vh) scale(1.2); opacity: 0; }
+        }
+
+        .floater {
+            position: fixed;
+            bottom: -10vh;
+            animation: float 15s linear infinite;
+            color: rgba(212, 175, 55, 0.2);
+            z-index: 0;
+            pointer-events: none;
+            font-size: 2rem;
+        }
+
+        /* --- NAVBAR --- */
+        .navbar {
+            position: fixed;
+            width: 100%;
+            z-index: 1000;
+            padding: 10px 0;
+            transition: all 0.4s ease;
+        }
+
+        .navbar.scrolled {
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .nav-logo {
+            font-family: 'Cinzel', serif;
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--primary-gold);
+            letter-spacing: 2px;
+        }
+
+        .nav-logo span { color: var(--accent-pink); }
+
+        .btn-book {
+            background: var(--primary-gold);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: bold;
+            transition: transform 0.3s;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-book:hover {
+            transform: scale(1.05);
+            background: #b5952f;
+        }
+
+        /* --- HERO SECTION --- */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 80px 20px 20px;
+            position: relative;
+            
+            /* Background Image Settings */
+            background-image: url('Untitled design (7).png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        .hero-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1;
+        }
+
+        .hero-text {
+            width: 100%;
+            max-width: 800px;
+            text-align: center;
+            position: relative;
+            z-index: 10;
+            color: white;
+        }
+
+        .hero-subtitle {
+            color: var(--primary-gold);
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+        }
+
+        .hero-title {
+            font-family: 'Prata', serif;
+            font-size: 5rem;
+            font-weight: 400;
+            color: white;
+            line-height: 1.1;
+            margin-bottom: 0.5rem;
+        }
+
+        .hero-credit {
+            font-family: 'Cinzel', serif;
+            color: var(--accent-pink);
+            font-weight: bold;
+            letter-spacing: 0.2em;
+            font-size: 1.2rem;
+        }
+
+        .divider {
+            width: 60px;
+            height: 2px;
+            background: var(--primary-gold);
+            margin: 2rem auto;
+            opacity: 0.8;
+        }
+
+        .hero-buttons {
+            margin-top: 3rem;
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            background: var(--accent-pink);
+            color: white;
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-family: 'Cinzel', serif;
+            font-size: 0.75rem;
+            letter-spacing: 2px;
+            border: none;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .btn-primary:hover { background: #c2185b; }
+
+        .btn-outline {
+            border: 1px solid var(--primary-gold);
+            color: white;
+            background: transparent;
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-family: 'Cinzel', serif;
+            font-size: 0.75rem;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-outline:hover {
+            background: var(--primary-gold);
+            color: white;
+        }
+
+        /* --- QUOTE SECTION --- */
+        .quote-section {
+            padding: 6rem 1rem;
+            text-align: center;
+            position: relative;
+            z-index: 5;
+        }
+
+        .quote-icon {
+            color: var(--primary-gold);
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .quote-title {
+            font-family: 'Cinzel', serif;
+            font-size: 2.5rem;
+            color: var(--text-dark);
+            margin-bottom: 1.5rem;
+        }
+
+        .quote-text {
+            font-family: 'Prata', serif;
+            font-size: 1.8rem;
+            color: #555;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.4;
+        }
+
+        /* --- SERVICES (Cards) --- */
+        .services-section {
+            background: white;
+            padding: 6rem 1rem;
+            position: relative;
+        }
+
+        .section-header {
+            text-align: center;
+            font-family: 'Cinzel', serif;
+            font-size: 2rem;
+            color: var(--primary-gold);
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            margin-bottom: 4rem;
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .royal-card {
+            background: #fffcf4;
+            border: 1px solid #fcf0d4;
+            border-radius: 20px;
+            padding: 2.5rem 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.05);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .royal-card:hover { 
+            transform: translateY(-10px); 
+            box-shadow: 0 10px 25px rgba(212, 175, 55, 0.15);
+            border-color: var(--primary-gold);
+        }
+
+        .icon-circle {
+            width: 60px;
+            height: 60px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            font-size: 1.5rem;
+            color: var(--primary-gold);
+        }
+
+        .card-title {
+            font-family: 'Cinzel', serif;
+            font-size: 1.3rem;
+            color: var(--text-dark);
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .card-divider {
+            width: 40px;
+            height: 2px;
+            background: var(--accent-pink);
+            margin: 1rem auto;
+            opacity: 0.3;
+        }
+
+        /* --- MAP SECTION --- */
+        .map-wrapper {
+            height: 400px;
+            width: 100%;
+            background: #eee;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .map-overlay {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            padding: 10px 25px;
+            border-radius: 50px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            font-family: 'Cinzel', serif;
+            color: var(--text-dark);
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* --- PORTFOLIO --- */
+        .portfolio-section {
+            padding: 6rem 1rem;
+            background: white;
+        }
+
+        .portfolio-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .portfolio-item {
+            position: relative;
+            height: 350px;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #eee;
+        }
+        
+        .portfolio-item.large {
+            grid-column: span 1;
+            grid-row: span 2;
+            height: 716px; /* 350*2 + 16 gap */
+        }
+
+        .portfolio-label {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 20px;
+            background: linear-gradient(to top, rgba(233, 30, 99, 0.6), transparent);
+            color: white;
+            font-family: 'Cinzel', serif;
+            text-align: center;
+            font-weight: bold;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none; /* Let clicks pass through to the image */
+        }
+
+        .portfolio-item:hover .portfolio-label { opacity: 1; }
+
+        /* --- FOOTER --- */
+        .footer {
+            background: var(--text-dark);
+            color: white;
+            padding: 5rem 1rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .footer-title {
+            font-family: 'Prata', serif;
+            font-size: 3.5rem;
+            color: var(--primary-gold);
+            margin-bottom: 1rem;
+        }
+
+        .footer-info {
+            font-size: 0.8rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: #888;
+            margin-bottom: 3rem;
+        }
+
+        .footer-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 3rem;
+        }
+
+        .footer-contact {
+            color: #666;
+            font-size: 0.8rem;
+            letter-spacing: 0.1em;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        /* --- RESPONSIVE --- */
+        @media (max-width: 768px) {
+            .hero-title { font-size: 3rem; }
+            .cards-grid { grid-template-columns: 1fr; gap: 2rem; }
+            .portfolio-grid { grid-template-columns: 1fr 1fr; }
+            .portfolio-item.large { grid-column: span 2; height: 350px; }
+            .footer-buttons { flex-direction: column; align-items: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Floating Hearts Container -->
+    <div id="floater-container"></div>
+
+    <!-- Lightbox Modal -->
+    <div class="lightbox" id="lightbox">
+        <span class="lightbox-close" onclick="closeLightbox()">&times;</span>
+        <img src="" alt="Full Image" class="lightbox-img" id="lightbox-img">
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="container flex justify-between items-center">
+            <!-- RESTORED TEXT LOGO -->
+            <div class="nav-logo">AJ<span>.</span></div>
+            
+            <button class="btn-book" onclick="openWhatsApp()">
+                <!-- SVG Icon -->
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.05 12.05 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.05 12.05 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                Book Now
+            </button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="hero">
+        <div class="hero-overlay"></div>
+        <div class="hero-text">
+            <p class="hero-subtitle">Certified Makeup Artist</p>
+            <h1 class="hero-title">AJ Makeovers <span style="display:block; font-size: 0.5em; margin-top: 10px;">& Hairstylist</span></h1>
+            <p class="hero-credit">By Jyothi</p>
+            
+            <div class="divider"></div>
+            
+            <p style="font-family: 'Cinzel', serif; font-weight: bold; font-size: 0.9rem;">
+                HYDERABAD & KONASEEMA
+            </p>
+            <p style="font-style: italic; color: #f0f0f0; margin-top: 1rem; max-width: 300px; margin-left: auto; margin-right: auto;">
+                "Transforming brides into royalty with precision, passion, and perfection."
+            </p>
+
+            <div class="hero-buttons">
+                <button class="btn-primary" onclick="openWhatsApp()">Inquire</button>
+                <button class="btn-outline" onclick="scrollToPortfolio()">Portfolio</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Quote Section -->
+    <section class="quote-section">
+        <div class="quote-icon"></div>
+        <h2 class="quote-title">Artistry & Elegance</h2>
+        <p class="quote-text">
+            "Whether it is your wedding day or a high-fashion shoot, we craft looks that reflect your unique beauty. Certified expertise meets artistic vision."
+        </p>
+    </section>
+
+    <!-- Services Section -->
+    <section class="services-section">
+        <h2 class="section-header">Our Services</h2>
+        
+        <div class="cards-grid">
+            <!-- 1. Bridal Makeup -->
+            <div class="royal-card">
+                <div class="icon-circle">♥</div>
+                <h3 class="card-title">Bridal Makeup</h3>
+                <div class="card-divider"></div>
+                <p style="font-style: italic; color: #666; font-size: 0.9rem;">
+                    Royal, Traditional, HD & Airbrush finishes for your perfect day.
+                </p>
+            </div>
+
+            <!-- 2. Pre-wedding Makeup -->
+            <div class="royal-card">
+                <div class="icon-circle">💍</div>
+                <h3 class="card-title">Pre-Wedding</h3>
+                <div class="card-divider"></div>
+                <p style="font-style: italic; color: #666; font-size: 0.9rem;">
+                    Subtle, romantic looks for engagements and couple shoots.
+                </p>
+            </div>
+
+            <!-- 3. Party Makeup -->
+            <div class="royal-card">
+                <div class="icon-circle">✨</div>
+                <h3 class="card-title">Party Makeup</h3>
+                <div class="card-divider"></div>
+                <p style="font-style: italic; color: #666; font-size: 0.9rem;">
+                    Glamorous looks for bridesmaids, guests, and evening events.
+                </p>
+            </div>
+
+            <!-- 4. Fashion Makeup -->
+            <div class="royal-card">
+                <div class="icon-circle">👠</div>
+                <h3 class="card-title">Fashion Makeup</h3>
+                <div class="card-divider"></div>
+                <p style="font-style: italic; color: #666; font-size: 0.9rem;">
+                    Editorial, ramp walk, and high-fashion styling concepts.
+                </p>
+            </div>
+
+            <!-- 5. Photo Shoot -->
+            <div class="royal-card">
+                <div class="icon-circle">📷</div>
+                <h3 class="card-title">Photo Shoot</h3>
+                <div class="card-divider"></div>
+                <p style="font-style: italic; color: #666; font-size: 0.9rem;">
+                    Camera-ready makeup optimized for studio and outdoor lighting.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Map Section -->
+    <section class="map-wrapper">
+        <iframe 
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3806.46!2d78.4!3d17.4!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMTfCsDI0JzAwLjAiTiA3OMKwMjQnMDAuMCJF!5e0!3m2!1sen!2sin!4v1620000000000!5m2!1sen!2sin" 
+            width="100%" 
+            height="100%" 
+            style="border:0; filter: grayscale(100%);" 
+            allowfullscreen="" 
+            loading="lazy">
+        </iframe>
+        <div class="map-overlay">
+            <span style="color: var(--accent-pink);">📍</span> Hyderabad & Konaseema
+        </div>
+    </section>
+
+    <!-- Portfolio Section -->
+    <section class="portfolio-section" id="portfolio">
+        <div class="text-center" style="margin-bottom: 3rem;">
+            <div style="font-size: 2rem; color: var(--primary-gold); margin-bottom: 0.5rem;"></div>
+            <h2 class="quote-title">Selected Works</h2>
+        </div>
+
+        <div class="portfolio-grid">
+            <!-- PASTE IMAGE LINKS IN SRC BELOW -->
+            
+            <div class="portfolio-item">
+                <img src="pic6.jpeg" class="placeholder-img" alt="Work 1">
+                <div class="portfolio-label">Bridal</div>
+            </div>
+            
+            <div class="portfolio-item">
+                <img src="pic4.jpeg" class="placeholder-img" alt="Work 3">
+                <div class="portfolio-label">Traditional</div>
+            </div>
+
+            <div class="portfolio-item large">
+                <img src="pic1.jpeg" class="placeholder-img" alt="Work 2">
+                <div class="portfolio-label">Hair Styling</div>
+            </div>
+
+            
+
+            <div class="portfolio-item">
+                <img src="pic3.jpeg" class="placeholder-img" alt="Work 4">
+            </div>
+
+            <div class="portfolio-item">
+                <img src="WhatsApp Image 2026-01-31 at 1.04.00 PM.jpeg" class="placeholder-img" alt="Work 5">
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <h2 class="footer-title">Jyothi</h2>
+        <p class="footer-info">Certified Artist • Bookings Open</p>
+
+        <div class="footer-buttons">
+            <button class="btn-book" style="background: white; color: var(--text-dark);" onclick="openWhatsApp()">
+                WhatsApp
+            </button>
+            <button class="btn-book" style="background: white; color: var(--accent-pink);" onclick="window.open('https://www.instagram.com/aj_makeovers_hairstylist?igsh=Z3hobHd5Z3JwaWt1', '_blank')">
+                Instagram
+            </button>
+            <button class="btn-book" style="background: transparent; border: 1px solid white;" onclick="window.open('tel:7382671834')">
+                Call Now
+            </button>
+        </div>
+
+        <div class="footer-contact">
+            <span>+91 7382671834</span>
+            <span>bookings@ajmakeovers.com</span>
+            <span>Hyderabad • Konaseema</span>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // Scroll Effect
+        window.addEventListener('scroll', function() {
+            const navbar = document.getElementById('navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // Floating Hearts Logic
+        const container = document.getElementById('floater-container');
+        const symbols = ['♥', '✨'];
+        
+        for (let i = 0; i < 15; i++) {
+            const el = document.createElement('div');
+            el.classList.add('floater');
+            el.innerText = symbols[i % 2];
+            el.style.left = Math.random() * 100 + 'vw';
+            el.style.animationDelay = Math.random() * 10 + 's';
+            el.style.animationDuration = (10 + Math.random() * 10) + 's';
+            el.style.fontSize = (20 + Math.random() * 30) + 'px';
+            container.appendChild(el);
+        }
+
+        // Links
+        function openWhatsApp() {
+            window.open("https://wa.me/917382671834", "_blank");
+        }
+
+        function scrollToPortfolio() {
+            document.getElementById('portfolio').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Lightbox Logic
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImg = document.getElementById('lightbox-img');
+        const portfolioImages = document.querySelectorAll('.placeholder-img');
+
+        portfolioImages.forEach(img => {
+            img.addEventListener('click', function() {
+                // Ensure there is a source (skips empty placeholders if you want, but often placeholders have src)
+                if (this.src && this.src !== window.location.href) { 
+                    lightboxImg.src = this.src;
+                    lightbox.classList.add('active');
+                }
+            });
+        });
+
+        function closeLightbox() {
+            lightbox.classList.remove('active');
+        }
+
+        // Close on background click
+        lightbox.addEventListener('click', function(e) {
+            if (e.target === lightbox) {
+                closeLightbox();
+            }
+        });
+    </script>
+</body>
+</html>
